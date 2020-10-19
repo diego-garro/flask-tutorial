@@ -15,7 +15,7 @@ from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-bp.route('/register', methods=('GET', 'POST'))
+@bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -28,13 +28,13 @@ def register():
         elif not password:
             error = 'Password is required'
         elif db.execute(
-            f'SELECT id FROM user WHERE username = ({username},)'
+            'SELECT id FROM user WHERE username = ?', (username,)
         ).fetchone() is not None:
             error = f'User {username} is already registered'
         
         if error is None:
             db.execute(
-                f'INSERT INTO user (username, password) VALUES (username, generate_password_hash(password))'
+                'INSERT INTO user (username, password) VALUES (?, ?)', (username, generate_password_hash(password))
             )
             db.commit()
             return redirect(url_for('auth.login'))
@@ -51,7 +51,7 @@ def login():
         db = get_db()
         error = None
         user = db.execute(
-            f'SELECT * FROM user WHERE username = ({username},)'
+            'SELECT * FROM user WHERE username = ?', (username,)
         ).fetchone()
         
         if user is None:
@@ -76,7 +76,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            f'SELECT * FROM user WHERE id = ({user_id},)'
+            'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
 @bp.route('/logout')
