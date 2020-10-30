@@ -1,5 +1,6 @@
 import pytest
-from flaskr import g, session
+from flask import g
+from flask import session
 from flaskr.db import get_db
 
 def test_register(client, app):
@@ -16,7 +17,7 @@ def test_register(client, app):
         ).fetchone() is not None
         
 @pytest.mark.parametrize(
-    ('usernam', 'password', 'message'),
+    ('username', 'password', 'message'),
     (
         ('', '', b'Username is required'),
         ('a', '', b'Password is required'),
